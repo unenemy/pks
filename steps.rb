@@ -30,31 +30,45 @@ module Steps
   end
 
   def v_cycle
-    if in_claster?
-      @from[:k] += @current_state[:forward] ? 2 : -2
+    if (@from[:i] == 1 && @from[:k] == 1 && !@current_state[:forward]) || (@from[:i] == @step && @from[:k] == 3 && @current_state[:forward])
+      # shift to mesh
+      p "shift to mesh"
+      v_shift_to_other_place
     else
-      if (@from[:i] == 1 && @from[:k] == 1 && !@current_state[:forward]) || (@from[:i] == @step && @from[:k] == 3 && @current_state[:forward])
-        # shift to mesh
-        p "shift to mesh"
-        v_shift_to_mesh
+      test = @from.dup
+      test[:i] += @current_state[:forward] ? 1 : -1
+      test[:i] = @step if test[:i] == 0
+      test[:i] = 1 if test[:i] == @step+1
+      test[:k] = @current_state[:forward] ? 1 : 3
+      if broken?(test)
+        v_shift_to_other_place
       else
-        @from[:i] += @current_state[:forward] ? 1 : -1
-        @from[:i] = @step if @from[:i] == 0
-        @from[:i] = 1 if @from[:i] == @step+1
-        @from[:k] = @current_state[:forward] ? 1 : 3
+        @possible_variants[:tried] = []
+        @from = test
+        put_node(@from)
+        true
       end
     end
   end
 
-  def v_shift_to_mesh
-    if @from[:j] < @to[:j]
-      @from[:l] = 3
-    elsif @from[:j] > @to[:j]
-      @from[:l] = 1
-    elsif @from[:l] != @to[:l]
-      @from[:l] = @to[:l]
+  def v_shift_to_other_place
+    @possible_variants[:tried] << @current_state[:type_v]
+    test = @from.dup
+    if @possible_variants[:tried].size == 3
+      return false unless @possible_variants[:forward_way]
+      @possible_variants[:tried] = []
+      @possible_variants[:forward_way] = false
+      @current_state[:forward] = !@current_state[:forward]
+      @current_state[:type_v] = L[@from[:l]]
+      return true
+    end
+    @current_state[:type_v] = (VERTICAL - @possible_variants[:tried]).first
+    p @current_state
+    test[:l] = L.key(@current_state[:type_v])
+    if build_in_claster_to(test)
+      next_step
     else
-      @from[:l] = 1
+      v_shift_to_other_place
     end
   end
 
@@ -112,24 +126,34 @@ module Steps
   end
 
   def right_mesh
-    if in_claster?
-      @from[:k] += @current_state[:forward] ? 1 : -1
-    elsif
-      @from[:i] += @current_state[:forward] ? 1 : -1
-      @from[:i] = @step if @from[:i] == 0
-      @from[:i] = 1 if @from[:i] == @step+1
-      @from[:k] = @current_state[:forward] ? 1 : 3
+    test = @from.dup
+    test[:i] += @current_state[:forward] ? 1 : -1
+    test[:i] = @step if test[:i] == 0
+    test[:i] = 1 if test[:i] == @step+1
+    test[:k] = @current_state[:forward] ? 1 : 3
+    if broken?(test)
+      v_shift_to_other_place
+    else
+      @possible_variants[:tried] = []
+      @from = test
+      put_node(@from)
+      true
     end
   end
 
   def left_mesh
-    if in_claster?
-      @from[:k] += @current_state[:forward] ? 1 : -1
-    elsif
-      @from[:i] += @current_state[:forward] ? 1 : -1
-      @from[:i] = @step if @from[:i] == 0
-      @from[:i] = 1 if @from[:i] == @step+1
-      @from[:k] = @current_state[:forward] ? 1 : 3
+    test = @from.dup
+    test[:i] += @current_state[:forward] ? 1 : -1
+    test[:i] = @step if test[:i] == 0
+    test[:i] = 1 if test[:i] == @step+1
+    test[:k] = @current_state[:forward] ? 1 : 3
+    if broken?(test)
+      v_shift_to_other_place
+    else
+      @possible_variants[:tried] = []
+      @from = test
+      put_node(@from)
+      true
     end
   end
 

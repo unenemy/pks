@@ -50,6 +50,37 @@ class Router
   end
 
   def move_vertical
+    while @from[:i] != @to[:i] do
+      if in_claster?
+        test = @from.dup
+        test[:k] = @current_state[:forward] ? 3 : 1
+        ok = build_in_claster(test)
+        while !ok do
+          @possible_variants[:tried] << @current_state[:type_v]
+          if @possible_variants[:tried].size == 3
+            @possible_variants[:tried] == []
+            return false unless @possible_variants[:forward_way]
+            @possible_variants[:forward_way] = false
+            @current_state[:forward] = !@current_state[:forward]
+            @current_state[:type_v] = L[@from[:l]]
+            break
+          end
+          @current_state[:type_v] = (VERTICAL - @possible_variants[:tried]).first
+          test = @from.dup
+          test[:k] = @current_state[:forward] ? 3 : 1
+          test[:l] = L.key(@current_state[:type_v])
+          ok = build_in_claster(test)
+        end
+      else
+        unless next_step
+          puts "FAILED HORIZONTAL" 
+          return false 
+        end
+      end
+      p @from
+      gets
+    end
+    true
 
   end
 
@@ -73,7 +104,7 @@ class Router
     @current_state[:forward] = forward_way?(from[:j], to[:j])
 
     unless move_horizontal
-      puts "FAILED TO FIND PATH"
+      puts "FAILED TO FIND PATH HORIZONTAL"
       return
     end
 
@@ -84,6 +115,12 @@ class Router
       #p @from
       #gets
     #end
+    @current_state[:orientation] = :v
+    @current_state[:forward] = forward_way?(from[:i], to[:i])
+    unless move_vertical
+      puts "FAILED TO FIND PATH VERTICAL"
+      return
+    end
 
     puts "before claster search"
     p @from

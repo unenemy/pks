@@ -26,12 +26,15 @@ module Strategies
   end
 
   def build_in_claster_to(to)
+    return true if to[:k] == @from[:k] && to[:l] == @from[:l]
     side = (@from[:k]%2 == 1 && @from[:l]%2 == 1) ? :cp : :mp
-    if side == :cp
-      build_from_cp_to(to)
-    else
-      build_from_mp_to(to)
-    end
+    found = 
+        if side == :cp
+          build_from_cp_to(to)
+        else
+          build_from_mp_to(to)
+        end
+    found
   end
 
   def build_from_cp_to(to)
@@ -68,7 +71,7 @@ module Strategies
           path.reverse.each do |back_node|
             gets
             @from[:k], @from[:l] = back_node
-            p @from
+            put_node(@from)
           end
           path = []
           #mark broken pathes
@@ -77,8 +80,8 @@ module Strategies
         else
           path << [@from[:k],@from[:l]]
           @from[:k], @from[:l] = values[node]
+          put_node(@from)
         end
-        p @from
       end
       found = true if @from[:k]==to[:k] && @from[:l] == to[:l]
     end
@@ -87,6 +90,7 @@ module Strategies
 
   def build_from_mp_to(to)
     puts "BUILDING from MP"
+    p to
     current = CLASTER_CIRCLE.key([@from[:k], @from[:l]])
     values = {
       :cplc => CLASTER_CIRCLE[((current+1)%8)==0 ? 8 : (current+1)%8],
@@ -119,7 +123,7 @@ module Strategies
           path.reverse.each do |back_node|
             gets
             @from[:k], @from[:l] = back_node
-            p @from
+            put_node(@from)
           end
           path = []
           #mark broken pathes
@@ -128,8 +132,8 @@ module Strategies
         else
           path << [@from[:k],@from[:l]]
           @from[:k], @from[:l] = values[node]
+          put_node(@from)
         end
-        p @from
       end
       found = true if @from[:k]==to[:k] && @from[:l] == to[:l]
     end

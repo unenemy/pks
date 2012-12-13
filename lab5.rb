@@ -9,6 +9,7 @@ while (str = Readline.readline(" >", true)) != "exit"
   if splited[0] == "break"
     to_break = splited[1]
     puts "#{to_break} broken"
+    router.break!(to_break)
   elsif splited.first == "route"
     from, to = splited[1..2]
     to_ari = ->(x){ r={}

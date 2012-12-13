@@ -64,4 +64,10 @@ class Router
     from, to, reverse = to, from, true if from > to
     ((to - from) < (from + @step - to)) ^ reverse
   end
+
+  def break!(to_break)
+    @broken_nodes ||= []
+    @broken_nodes << to_break
+    p @broken_nodes
+  end
 end

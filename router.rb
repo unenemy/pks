@@ -6,6 +6,7 @@ class Router
 
   def initialize(step)
     @step = step
+    @broken_nodes = []
   end
 
   def one_to_one(from, to)
@@ -30,7 +31,7 @@ class Router
       gets
     end
 
-    build_in_claster
+    build_in_claster(@to)
   end
 
   def next_step
@@ -66,8 +67,12 @@ class Router
   end
 
   def break!(to_break)
-    @broken_nodes ||= []
     @broken_nodes << to_break
     p @broken_nodes
+  end
+
+  def broken?(node)
+    p "#{node} is broken!" if @broken_nodes.include?(node.map(&:last).join)
+    @broken_nodes.include?(node.map(&:last).join)
   end
 end

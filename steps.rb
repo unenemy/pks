@@ -1,4 +1,6 @@
 module Steps
+  require './strategies'
+  include Strategies
   CLASTER_CIRCLE = {1 => [1,1], 2 => [1,2], 3 => [1,3], 4 => [2,3], 5 => [3,3], 6 => [3,2], 7 => [3,1], 8 => [2,1]}
 
   def h_cycle
@@ -103,11 +105,14 @@ module Steps
     end
   end
 
-  def build_in_claster
-    while @from[:k]!=@to[:k] || @from[:l]!=@to[:l]
-      step_in_claster
-      p @from
-    end
+  def build_in_claster(to)
+    @in_claster_steps = []
+    build_in_claster_to(to)
+    #while @from[:k]!=@to[:k] || @from[:l]!=@to[:l]
+      #step_in_claster
+      #p @from
+      #broken?(@from)
+    #end
   end
 
   def step_in_claster

@@ -17,5 +17,7 @@ while (str = Readline.readline(" >", true)) != "exit"
                     r 
                   }
     router.one_to_one(to_ari[from], to_ari[to])
+    puts "The whole path is:"
+    puts router.whole_path
   end
 end

@@ -6,6 +6,8 @@ class Router
   K = { 1 => :up_mesh, 2 => :h_cycle, 3 => :down_mesh}
   L = { 1 => :left_mesh, 2 => :v_cycle, 3 => :right_mesh}
 
+  attr_reader :whole_path
+
   def initialize(step)
     @step = step
     @broken_nodes = []
@@ -89,6 +91,7 @@ class Router
       :forward_way => true,
       :tried => []
     }
+    @whole_path = [from.map(&:last).join]
     @from = from
     @to = to
     @current_state = start_state(from, to)
@@ -166,10 +169,12 @@ class Router
 
   def broken?(node)
     puts "!! Tryed to go to --> #{node.map(&:last).join} but it's BROKEN!" if @broken_nodes.include?(node.map(&:last).join)
+    @whole_path << "try to broken #{node.map(&:last).join}" if @broken_nodes.include?(node.map(&:last).join)
     @broken_nodes.include?(node.map(&:last).join)
   end
 
   def put_node(node)
+    @whole_path << node.map(&:last).join
     puts "go to --> #{node.map{|k,v| v}.join}"
   end
 end

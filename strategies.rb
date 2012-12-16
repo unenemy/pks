@@ -26,6 +26,7 @@ module Strategies
   end
 
   def build_in_claster_to(to)
+    puts "Trying to go in claster from #{@from.map(&:last).join} to #{to.map(&:last).join}"
     return true if to[:k] == @from[:k] && to[:l] == @from[:l]
     side = (@from[:k]%2 == 1 && @from[:l]%2 == 1) ? :cp : :mp
     found = 
@@ -49,15 +50,15 @@ module Strategies
       :cpr  => CLASTER_CIRCLE[((current+6)%8)==0 ? 8 : (current+6)%8],
       :mprc => CLASTER_CIRCLE[((current+7)%8)==0 ? 8 : (current+7)%8]
     }
-    puts "VALUES"
-    p values
+    #puts "VALUES"
+    #p values
     tosym = values.key([to[:k],to[:l]])
-    p tosym
+    #p tosym
     strategies = strategy_from_cp[tosym].map{|x| {:strategy => x, :available => true}}
     found = false
-    p strategies
+    #p strategies
     while !strategies.find{|x| x[:available]}.nil? && !found
-      puts "we are in while"
+      #puts "we are in while"
       gets
       path = []
       strategy = strategies.find{|x| x[:available]}
@@ -90,7 +91,7 @@ module Strategies
 
   def build_from_mp_to(to)
     puts "BUILDING from MP"
-    p to
+    #p t
     current = CLASTER_CIRCLE.key([@from[:k], @from[:l]])
     values = {
       :cplc => CLASTER_CIRCLE[((current+1)%8)==0 ? 8 : (current+1)%8],
@@ -101,15 +102,15 @@ module Strategies
       :mpr  => CLASTER_CIRCLE[((current+6)%8)==0 ? 8 : (current+6)%8],
       :cprc => CLASTER_CIRCLE[((current+7)%8)==0 ? 8 : (current+7)%8]
     }
-    puts "VALUES"
-    p values
+    #puts "VALUES"
+    #p values
     tosym = values.key([to[:k],to[:l]])
-    p tosym
+    #p tosym
     strategies = strategy_from_mp[tosym].map{|x| {:strategy => x, :available => true}}
     found = false
-    p strategies
+    #p strategies
     while !strategies.find{|x| x[:available]}.nil? && !found
-      puts "we are in while"
+      #puts "we are in while"
       gets
       path = []
       strategy = strategies.find{|x| x[:available]}

@@ -55,8 +55,8 @@ module Steps
     @possible_variants[:tried] << @current_state[:type_v]
     test = @from.dup
     if @possible_variants[:tried].size == 3
-      return false unless @possible_variants[:forward_way]
       @possible_variants[:tried] = []
+      return false unless @possible_variants[:forward_way]
       @possible_variants[:forward_way] = false
       @current_state[:forward] = !@current_state[:forward]
       @current_state[:type_v] = L[@from[:l]]
@@ -73,11 +73,12 @@ module Steps
   end
 
   def h_shift_to_other_place
+    p @possible_variants
     @possible_variants[:tried] << @current_state[:type_h]
     test = @from.dup
     if @possible_variants[:tried].size == 3
-      return false unless @possible_variants[:forward_way]
       @possible_variants[:tried] = []
+      return false unless @possible_variants[:forward_way]
       @possible_variants[:forward_way] = false
       @current_state[:forward] = !@current_state[:forward]
       @current_state[:type_h] = K[@from[:k]]

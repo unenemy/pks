@@ -10,6 +10,10 @@ while (str = Readline.readline(" >", true)) != "exit"
     to_break = splited[1]
     puts "#{to_break} broken"
     router.break!(to_break)
+  elsif splited.first == "heal"
+    to_heal = splited[1]
+    puts "#{to_break} healed"
+    router.heal!(to_heal)
   elsif splited.first == "route"
     from, to = splited[1..2]
     to_ari = ->(x){ r={}

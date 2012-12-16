@@ -17,8 +17,14 @@ class Router
     }
   end
 
-  def move_horizontal
-    while @from[:j] != @to[:j] do
+  def move_horizontal(to_j=nil)
+    @possible_variants[:forward_way] = true
+    @possible_variants[:tried] = []
+    @possible_variants[:i_tried] << @from[:i]
+    to_j ||= @to[:j]
+    @current_state[:orientation] = :h
+    @current_state[:forward] = forward_way?(@from[:j], to_j)
+    while @from[:j] != to_j do
       if in_claster?
         test = @from.dup
         test[:l] = @current_state[:forward] ? 3 : 1
@@ -26,7 +32,7 @@ class Router
         while !ok do
           @possible_variants[:tried] << @current_state[:type_h]
           if @possible_variants[:tried].size == 3
-            @possible_variants[:tried] == []
+            @possible_variants[:tried] = []
             return false unless @possible_variants[:forward_way]
             @possible_variants[:forward_way] = false
             @current_state[:forward] = !@current_state[:forward]
@@ -51,8 +57,14 @@ class Router
     true
   end
 
-  def move_vertical
-    while @from[:i] != @to[:i] do
+  def move_vertical(to_i=nil)
+    @possible_variants[:forward_way] = true
+    @possible_variants[:tried] = []
+    @possible_variants[:j_tried] << @from[:j]
+    to_i ||= @to[:i]
+    @current_state[:orientation] = :v
+    @current_state[:forward] = forward_way?(@from[:i], to_i)
+    while @from[:i] != to_i do
       if in_claster?
         test = @from.dup
         test[:k] = @current_state[:forward] ? 3 : 1
@@ -60,7 +72,7 @@ class Router
         while !ok do
           @possible_variants[:tried] << @current_state[:type_v]
           if @possible_variants[:tried].size == 3
-            @possible_variants[:tried] == []
+            @possible_variants[:tried] = []
             return false unless @possible_variants[:forward_way]
             @possible_variants[:forward_way] = false
             @current_state[:forward] = !@current_state[:forward]
@@ -75,7 +87,7 @@ class Router
         end
       else
         unless next_step
-          puts "FAILED HORIZONTAL" 
+          puts "FAILED VERTICAL" 
           return false 
         end
       end
@@ -83,46 +95,62 @@ class Router
       gets
     end
     true
-
   end
 
   def one_to_one(from, to)
     @possible_variants = {
       :forward_way => true,
-      :tried => []
+      :tried => [],
+      :i_tried => [],
+      :j_tried => []
     }
     @whole_path = [from.map(&:last).join]
     @from = from
     @to = to
     @current_state = start_state(from, to)
     p @current_state
-    #while @from[:i] != @to[:i]
-      #next_step
-      #refresh_current_state
-      #p @from
-      #gets
-    #end
-    
-    @current_state[:orientation] = :h
-    @current_state[:forward] = forward_way?(from[:j], to[:j])
-
-    unless move_horizontal
-      puts "FAILED TO FIND PATH HORIZONTAL"
-      return
+    moved_horizontal = @from[:j] == @to[:j]
+    ok = true
+    while !moved_horizontal
+      puts "moving horizontal"
+      p @possible_variants
+      moved_horizontal = move_horizontal if ok
+      break if move_horizontal
+      to_i = ((1..@step).to_a - @possible_variants[:i_tried]).first
+      ok = move_vertical(to_i)
+      @possible_variants[:i_tried] << to_i unless ok
+      if @possible_variants[:i_tried].size == @step
+        puts "FAILED TO FIND PATH ANY HORIZONTAL"
+        return
+      end
     end
 
     puts "Horizontal moved"
-    #while @from[:j] != @to[:j]
-      #next_step
-      #refresh_current_state
-      #p @from
-      #gets
-    #end
-    @current_state[:orientation] = :v
-    @current_state[:forward] = forward_way?(from[:i], to[:i])
-    unless move_vertical
-      puts "FAILED TO FIND PATH VERTICAL"
-      return
+
+    moved_vertical = @from[:i] == @to[:i]
+    ok = true
+    while !moved_vertical
+      puts "moving vertical"
+      p @possible_variants
+      moved_vertical = move_vertical if ok
+      break if moved_vertical
+      to_j = ((1..@step).to_a - @possible_variants[:j_tried]).first
+      ok = move_horizontal(to_j)
+      @possible_variants[:j_tried] << to_j unless ok
+      if @possible_variants[:j_tried].size == @step
+        puts "FAILED TO FIND PATH ANY VERTICAL"
+        return
+      end
+    end
+
+    puts "Vertical moved"
+
+    if @from[:j] != @to[:j]
+      puts "Transfered on right row, try to go to the right column"
+      unless move_horizontal
+        puts "FAILED TO FIND PATH HORIZONTAL, sorry"
+        return
+      end
     end
 
     puts "before claster search"
@@ -171,6 +199,11 @@ class Router
     puts "!! Tryed to go to --> #{node.map(&:last).join} but it's BROKEN!" if @broken_nodes.include?(node.map(&:last).join)
     @whole_path << "try to broken #{node.map(&:last).join}" if @broken_nodes.include?(node.map(&:last).join)
     @broken_nodes.include?(node.map(&:last).join)
+  end
+
+  def heal!(node)
+    @broken_nodes -= [node]
+    p @broken_nodes
   end
 
   def put_node(node)
